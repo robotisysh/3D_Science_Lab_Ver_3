@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#07131d" />
+  <title>LABVERSE | 3D 과학실험실</title>
+  <link rel="stylesheet" href="style.css" />
+  <script type="importmap">
+    {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.166.1/examples/jsm/"}}
+  </script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="LABVERSE 홈"><span class="brand-mark">L<span>+</span></span><span><b>LABVERSE</b><small>VIRTUAL SCIENCE STUDIO</small></span></a>
+      <div class="top-status"><span class="live-dot"></span> 시뮬레이션 준비 완료 <span class="top-divider"></span><span id="clockLabel">자유 실험 모드</span></div>
+      <button id="resetBtn" class="ghost-button">↺ <span>실험 초기화</span></button>
+    </header>
+
+    <main class="workspace">
+      <aside class="sidebar materials-panel">
+        <div class="section-kicker">01 / MATERIALS</div>
+        <div class="panel-heading"><div><h1>재료 보관함</h1><p>실험에 사용할 재료를 선택해.</p></div><span class="count-pill" id="materialCount">12 ITEMS</span></div>
+        <div class="search-wrap"><span>⌕</span><input id="materialSearch" type="search" placeholder="재료 이름 검색" aria-label="재료 검색"></div>
+        <div class="category-tabs" id="categoryTabs">
+          <button class="category-tab active" data-category="all">전체</button><button class="category-tab" data-category="chemistry">화학</button><button class="category-tab" data-category="physics">물리</button><button class="category-tab" data-category="biology">생물</button><button class="category-tab" data-category="earth">지구</button>
+        </div>
+        <div class="material-grid" id="materialGrid"></div>
+        <div class="sidebar-note"><span class="note-icon">✦</span><span><b>실험 팁</b><br>재료를 선택하면 실험대에 추가돼. 서로 다른 재료를 조합해 결과를 관찰해 봐.</span></div>
+      </aside>
+
+      <section class="center-stage">
+        <div class="stage-toolbar"><div><div class="section-kicker">02 / 3D WORKBENCH</div><h2>실험 작업대 <span class="subtle-tag">LIVE 3D</span></h2></div><div class="stage-actions"><button id="viewBtn" class="icon-button" title="시점 초기화" aria-label="시점 초기화">◎</button><button id="labelsBtn" class="icon-button active" title="라벨 표시 전환" aria-label="라벨 표시 전환">Aa</button></div></div>
+        <div class="scene-frame" id="sceneFrame">
+          <div class="scene-hud hud-top-left"><span class="hud-dot"></span> LAB 01 <span class="hud-muted">/ INTERACTIVE SPACE</span></div>
+          <div class="scene-hud hud-top-right"><span id="sceneTemp">22.0 °C</span><span class="hud-separator">|</span><span id="sceneState">대기 중</span></div>
+          <div id="threeMount" class="three-mount"></div>
+          <div class="scene-hint"><span class="mouse-icon">↔</span> 빈 공간 드래그: 회전 <span>·</span> 고체 시료 드래그: 이동 <span>·</span> 휠: 확대/축소</div>
+          <div class="scene-caption" id="sceneCaption"><span class="caption-line"></span><div><b>반응 용기 A</b><small>BEAKER / 250 mL</small></div></div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        </div>
+        <div class="workbench-footer"><div class="bench-stat"><span class="stat-icon">◉</span><div><small>실험 시료 배치</small><b id="ingredientSummary">비어 있음</b></div></div><div class="bench-stat"><span class="stat-icon">⌁</span><div><small>실험 진행 시간</small><b id="elapsedTime">00:00</b></div></div><div class="bench-stat"><span class="stat-icon">◇</span><div><small>모델 상태</small><b id="modelStatus">안정</b></div></div><button id="clearVesselBtn" class="clear-button">시료 정리</button></div>
+      </section>
+
+      <aside class="sidebar control-panel">
+        <div class="section-kicker">03 / EXPERIMENT CONTROL</div><div class="panel-heading"><div><h1>실험 제어</h1><p>조건을 조절하고 변화를 관찰해.</p></div><span class="control-orb">⌘</span></div>
+        <div class="control-section"><div class="control-title"><span>온도</span><b id="tempValue">22 °C</b></div><input id="tempSlider" class="range range-temp" type="range" min="-10" max="120" value="22"/><div class="range-labels"><span>−10 °C</span><span>120 °C</span></div><div class="mini-hint">가열·냉각에 따른 상태와 반응 속도 변화를 단순 모델로 표현해.</div></div>
+        <div class="control-section"><div class="control-title"><span>농도</span><b id="concValue">50%</b></div><input id="concSlider" class="range range-conc" type="range" min="10" max="100" value="50"/><div class="range-labels"><span>묽음</span><span>진함</span></div></div>
+        <div class="control-section"><div class="control-title"><span>교반 세기</span><b id="stirValue">0%</b></div><input id="stirSlider" class="range range-stir" type="range" min="0" max="100" value="0"/><div class="range-labels"><span>정지</span><span>강한 교반</span></div></div>
+        <div class="control-section vessel-section"><div class="control-title"><span>비커 A · 액체 시료</span><span class="tiny-badge">250 mL</span></div><div class="vessel-row"><div class="vessel-icon">♧</div><div class="vessel-info"><b>비커 A</b><small id="vesselContents">내용물 없음</small></div><span class="vessel-check">✓</span></div><div id="vesselMaterialList" class="vessel-material-list"><span class="vessel-empty">비커에 담긴 재료가 없어.</span></div><div class="mass-row"><div><span>선택 시료 총질량</span><b id="massValue">0.0 g</b></div><div><span>예상 상태</span><b id="phaseValue">비어 있음</b></div></div></div>
+        <button id="runBtn" class="run-button"><span>▶</span> 실험 실행</button><button id="stopBtn" class="stop-button" disabled>■ 실험 정지</button>
+        <div class="safety-note"><span>ⓘ</span><p>교육용 가상 모델이야. 표시되는 결과는 선택된 반응 규칙에 따른 근사값이며, 실제 실험의 안전이나 결과를 보장하지 않아.</p></div>
+      </aside>
+    </main>
+
+    <section class="bottom-area">
+      <div class="results-panel"><div class="bottom-heading"><div><div class="section-kicker">04 / OBSERVATION</div><h2>관찰 기록</h2></div><button id="clearLogBtn" class="text-button">기록 지우기</button></div><div id="logList" class="log-list"><div class="empty-log"><span>◎</span><b>아직 관찰 기록이 없어.</b><small>재료를 추가하고 실험 실행을 눌러 시작해 봐.</small></div></div></div>
+      <div class="science-panel"><div class="section-kicker">SCIENCE INSIGHT</div><h2 id="insightTitle">실험에서 발견하기</h2><p id="insightText">재료를 조합하고 조건을 바꾸면 어떤 차이가 생길까? 실험을 실행하면 관찰 결과와 과학 원리를 여기에 표시해.</p><div class="insight-chips"><span>물질 상태</span><span>반응 속도</span><span>질량 보존</span></div><div class="conservation-row"><div><small>시작 질량</small><b id="startMass">—</b></div><div class="conservation-arrow">→</div><div><small>현재 질량</small><b id="currentMass">—</b></div><span class="mass-badge" id="massBadge">대기</span></div></div>
+    </section>
+    <footer><span>LABVERSE <span class="footer-dot">●</span> 3D SCIENCE SIMULATOR</span><span>학습용 프로토타입 · Three.js</span></footer>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
